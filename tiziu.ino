@@ -4,11 +4,11 @@
 #include <EmonLib.h>
 #include <DS3231.h>
 
-#define voltage_calibration 600 //Valor de calibração ajustado com Multímetro
+#define voltage_calibration 600 //Calibration with Voltimeter
 
 SMSGSM sms;
 EnergyMonitor energy_monitor;
-DS3231  _realTimeClock(SDA, SCL);  //Uno possui os pinos SDA e SCL conectores da porta digital
+DS3231  _realTimeClock(SDA, SCL);  //Uno has the pins SDA and SCL near digital ports.
 
 boolean is_gsm_ready = false;
 int current_fase_one_pin = A1;
@@ -16,7 +16,7 @@ int voltage_fase_one_pin = A2;
 int event_power_off_counter = 0;
 int event_power_on_counter = 0;
 int notifications_sent = 0;
-char receiver[14] = "04111984184531";
+char receiver[14] = "04111999999999"; //The notification receiver mobile phone here
 String today = "";
 String time_now = "";
 String message_formater = "";
@@ -38,7 +38,7 @@ void setup()
 
   _realTimeClock.begin();
   
-  //Pino, calibracao - Cur Const= Ratio/BurdenR. 2000/330 = 6.0606
+  //Current Constant = Ratio/BurdenR. 2000/330 = 6.0606
   energy_monitor.current(current_fase_one_pin, 6.0606);
   energy_monitor.voltage(voltage_fase_one_pin, voltage_calibration, 1.7);
 
@@ -130,7 +130,7 @@ void loop()
       Serial.print("Obteve tensao valida na rede, leitura: ");
       Serial.print(event_power_on_counter);
       Serial.println(" de 2.");
-      if(event_power_on_counter > 1) //Conta pelo menos duas leituras antes de notificar normalização da energia.
+      if(event_power_on_counter > 1) //At least two postive readings before send power normalization message.
       {
         send_notification("O fornecimento de energia foi restaurado.");
         reset_counters();
@@ -165,7 +165,7 @@ void loop()
     Serial.println(" de 3.");
   }
 
-  if(event_power_off_counter > 3 && notifications_sent < 3)
+  if(event_power_off_counter > 2 && notifications_sent < 3)
   {
     send_notification("ATENCAO: seu fornecimento de energia eletrica esta comprometido!");
   }
